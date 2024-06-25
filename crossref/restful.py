@@ -4,7 +4,8 @@ import contextlib
 import typing
 from time import sleep
 
-import requests
+from requests_html import AsyncHTMLSession
+asession = AsyncHTMLSession()
 
 from crossref import VERSION, validators
 
@@ -67,9 +68,9 @@ class HTTPRequest:
     ):
 
         if only_headers is True:
-            return requests.head(endpoint, timeout=2)
+            return asession.head(endpoint, timeout=2)
 
-        action = requests.post if method == "post" else requests.get
+        action = asession.post if method == "post" else asession.get
 
         headers = custom_header if custom_header else {"user-agent": str(Etiquette())}
         if method == "post":
@@ -257,7 +258,7 @@ class Endpoint:
         request_params = self._escaped_pagging()
 
         sorted_request_params = sorted([(k, v) for k, v in request_params.items()])
-        req = requests.Request("get", self.request_url, params=sorted_request_params).prepare()
+        req = asession.request("get", self.request_url, params=sorted_request_params).prepare()
 
         return req.url
 
